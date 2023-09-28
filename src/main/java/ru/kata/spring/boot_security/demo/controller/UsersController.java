@@ -16,6 +16,23 @@ public class UsersController {
         this.userService = userService;
     }
 
+    @GetMapping("/")
+    public String login() {
+        return "/index";
+    }
+
+    @GetMapping("/index")
+    public String login2() {
+        return "/index";
+    }
+
+    @GetMapping("/login")
+    public String login3() {
+        return "/index";
+    }
+
+
+
     @GetMapping("/user")
     public String show(Principal principal, Model model) {
         User user = userService.findByUsername(principal.getName());
