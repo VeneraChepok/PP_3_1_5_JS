@@ -1,48 +1,48 @@
 package ru.kata.spring.boot_security.demo.onStart;
 
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.stereotype.Component;
-import ru.kata.spring.boot_security.demo.model.Role;
-import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.repository.RoleRepository;
-import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
+import org.springframework.stereotype.Component;
+import ru.kata.spring.boot_security.demo.models.Role;
+import ru.kata.spring.boot_security.demo.models.User;
+import ru.kata.spring.boot_security.demo.service.RoleServiceImpl;
+import ru.kata.spring.boot_security.demo.service.UserService;
+
+import javax.annotation.PostConstruct;
+import java.util.HashSet;
 import java.util.Set;
 
 @Component
-public class OnStart implements ApplicationListener<ContextRefreshedEvent> {
+public class OnStart {
+    private final UserService userService;
+    private final RoleServiceImpl roleService;
 
-    boolean alreadySetup = false;
-
-    private final UserServiceImpl userService;
-    private final RoleRepository roleRepository;
-
-
-    public OnStart(UserServiceImpl userService, RoleRepository roleRepository) {
+    public OnStart(UserService userService, RoleServiceImpl roleService) {
         this.userService = userService;
-        this.roleRepository = roleRepository;
-
+        this.roleService = roleService;
     }
 
+    @PostConstruct
+    private void dataBaseInit() {
+        Set<Role> adminRole = new HashSet<>();
+        Role roleUser = new Role("ROLE_USER");
+        Role roleAdmin = new Role("ROLE_ADMIN");
 
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+        adminRole.add(roleAdmin);
+        adminRole.add(roleUser);
 
-        Role userRole = new Role();
-        userRole.setName("ROLE_USER");
+        Set<Role> userRole = new HashSet<>();
+        userRole.add(roleUser);
 
+        roleService.saveRole(roleAdmin);
+        roleService.saveRole(roleUser);
 
-        Role adminRole = new Role();
-        adminRole.setName("ROLE_ADMIN");
+        User admin = new User("admin", "admin", 25, "admin@mail.ru", "admin", adminRole);
+        User user = new User("user", "user", 27, "user@mail.ru", "user", userRole);
+        User tester = new User("test", "test", 32, "test@mail.ru", "test");
 
-        Set<Role> userRoles = Set.of(userRole);
-        Set<Role> adminRoles = Set.of(adminRole);
-
-        User user = new User("user", "user","u@mail.ru", userRoles);
-        userService.saveUser(user);
-
-        User admin = new User("admin", "admin","a@mail.ru", adminRoles);
-        userService.saveUser(admin);
+        tester.setRoles(adminRole);
+        userService.add(admin);
+        userService.add(user);
+        userService.add(tester);
     }
 }
