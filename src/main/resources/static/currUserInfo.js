@@ -1,5 +1,5 @@
 "use strict";
-//все юзеры
+//РІСЃРµ СЋР·РµСЂС‹
 // showCurrUser()
 function showCurrUser() {
     $.get(`/api/auth/`, function (data) {
@@ -36,3 +36,4 @@ $(document).ready(function () {
     currEmail();
     currRoles();
 })
+
